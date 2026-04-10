@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gold: #C9A84C;
+    --gold-bright: #F0C060;
+    --cyan: #4FC3F7;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-white dark:bg-dark text-gray-900 dark:text-gray-100;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    transition: background 0.4s, color 0.4s;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { @apply bg-gray-100 dark:bg-dark-nav; }
+  ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+  ::selection { background: rgba(201,168,76,0.3); color: #fff; }
+}
+
+@layer components {
+  /* Section labels */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    @apply text-xs tracking-[4px] uppercase mb-4;
+    color: var(--cyan);
+  }
+
+  /* Section titles — Playfair Display */
+  .section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    @apply font-bold text-3xl md:text-4xl text-gray-900 dark:text-white mb-2;
+  }
+
+  /* Name heading — Playfair Display italic */
+  .name-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-weight: 900;
+  }
+
+  .gold-line {
+    width: 48px; height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    @apply mb-8;
+  }
+
+  .card-base {
+    @apply rounded-xl border transition-all duration-300;
+    @apply bg-gray-50 border-gray-200 dark:bg-dark-card dark:border-white/5;
+  }
+  .card-base:hover {
+    border-color: rgba(201,168,76,0.35);
+    box-shadow: 0 8px 32px rgba(201,168,76,0.07);
+    transform: translateY(-2px);
+  }
+
+  .btn-gold {
+    @apply px-6 py-3 text-sm tracking-widest uppercase transition-all duration-300 cursor-pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-gold::before {
+    content: '';
+    position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: rgba(201,168,76,0.1);
+    transition: left 0.3s;
+  }
+  .btn-gold:hover::before { left: 0; }
+  .btn-gold:hover { box-shadow: 0 0 20px rgba(201,168,76,0.3); }
+
+  /* Body text — strong enough to read */
+  .body-text {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.75;
+    @apply text-gray-600 dark:text-gray-300;
+  }
+
+  /* Particle canvas */
+  #particles-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    opacity: 0.3;
+  }
+
+  /* Typewriter cursor */
+  .cursor-blink {
+    display: inline-block; width: 2px; height: 1em;
+    background: var(--cyan); margin-left: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+  }
+
+  /* Shimmer on name */
+  .shimmer-text {
+    background: linear-gradient(90deg, var(--gold) 25%, var(--gold-bright) 50%, var(--gold) 75%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+}
+
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+@keyframes shimmer {
+  0%{background-position:-200% 0;}
+  100%{background-position:200% 0;}
+}
+
+/* ── Iron Man Theme Additions ─────────────────────────────── */
+/* ironman-bg: see dark/light overrides at bottom */
+
+.hero-glow {
+  position: absolute;
+  top: 35%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px; height: 350px;
+  background: radial-gradient(ellipse, rgba(139,26,26,0.14) 0%, rgba(201,168,76,0.04) 40%, transparent 70%);
+  pointer-events: none;
+  filter: blur(50px);
+  z-index: 0;
+}
+
+.section-divider {
+  width: 100%; height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(201,168,76,0.12) 25%,
+    rgba(139,26,26,0.2) 50%,
+    rgba(201,168,76,0.12) 75%,
+    transparent 100%
+  );
+}
+
+/* ── Dark mode only: Iron Man bg ──────────────────────────── */
+/* In light mode, ironman-bg is transparent (body bg-white handles it) */
+:root:not(.dark) .ironman-bg {
+  background: none;
+}
+
+/* Dark mode: full Iron Man gradient */
+.dark .ironman-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139,26,26,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(201,168,76,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 20% 80%, rgba(139,26,26,0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #0d0608 0%, #100608 40%, #0d0508 100%);
+}
+
+/* Hero glow - dark only */
+:root:not(.dark) .hero-glow { display: none; }
+
+/* Ensure card text is always readable */
+.dark .card-base { color: #e5e7eb; }
+:root:not(.dark) .card-base { color: #111827; }
+
+/* Fix any leftover black text in dark mode */
+.dark h1, .dark h2, .dark h3, .dark h4 { color: inherit; }
+
+/* Cert issuer colors - ensure visible in both modes */
+.dark .cert-issuer { color: var(--cyan); }
+:root:not(.dark) .cert-issuer { color: #0369a1; }

@@ -1,0 +1,150 @@
+import type { Profile, Project, Skill, Certification, Education, Hackathon } from './supabase'
+
+export const seedProfile: Profile = {
+  id: 1,
+  name: 'Mohammed Yousuf',
+  title: 'Data Analyst | Junior Data Analyst',
+  bio: 'Detail-oriented BCA fresher with hands-on experience in Python, SQL, and data visualization. Passionate about uncovering actionable insights from data and building tools that tell compelling stories.',
+  photo_url: '',
+  resume_url: '',
+  email: 'mohammedyousuf8505@gmail.com',
+  phone: '+91 8073891763',
+  location: 'Mysore, KA — Open to Bangalore / Hyderabad',
+  linkedin: 'https://www.linkedin.com/in/mohammed-yousuf-aiml',
+  github: 'https://github.com/MohammedYousufCode',
+  available_from: '6th May 2025',
+  cgpa: '8.78',
+  total_certs: 5,
+  hackathon_prize: '1st Prize',
+}
+
+export const seedProjects: Project[] = [
+  // Main Projects: Data Analysis / ML
+  {
+    id: '1',
+    title: 'Superstore Sales EDA',
+    description: "End-to-end exploratory data analysis on Kaggle's Sample Superstore dataset. Answered 5 key business questions covering profitability, regional sales, shipping, discount impact, and seasonality.",
+    tech_stack: ['Python', 'Pandas', 'NumPy', 'Matplotlib', 'Seaborn', 'Jupyter'],
+    github_url: 'https://github.com/MohammedYousufCode/superstore-eda',
+    live_url: '',
+    image_url: '',
+    is_featured: true,
+    project_type: 'main',
+    order_index: 1,
+  },
+  {
+    id: '2',
+    title: 'HR Analytics Dashboard',
+    description: 'SQL-based HR analytics using PostgreSQL window functions to analyse employee attrition, department performance, and salary trends. Visualised in Power BI.',
+    tech_stack: ['PostgreSQL', 'SQL', 'Power BI', 'Window Functions'],
+    github_url: '',
+    live_url: '',
+    image_url: '',
+    is_featured: false,
+    project_type: 'main',
+    order_index: 2,
+  },
+  {
+    id: '3',
+    title: 'Data Analytics Web App',
+    description: 'End-to-end Python + PostgreSQL + Streamlit app for interactive data analysis. Publicly deployed with live data querying and visual dashboards.',
+    tech_stack: ['Python', 'PostgreSQL', 'Streamlit', 'Pandas'],
+    github_url: '',
+    live_url: '',
+    image_url: '',
+    is_featured: false,
+    project_type: 'main',
+    order_index: 3,
+  },
+  // Hobby Projects: Hackathon / AI-assisted
+  {
+    id: '4',
+    title: 'Codathon Hackathon App',
+    description: '1st Prize winner. Built a full-stack web app under hackathon time constraints using React, TypeScript, and Supabase. Handled UI, database schema, and auth flow end-to-end.',
+    tech_stack: ['React', 'TypeScript', 'Supabase', 'Vercel'],
+    github_url: '',
+    live_url: 'https://goat-fuel-virid.vercel.app',
+    image_url: '',
+    is_featured: true,
+    project_type: 'hobby',
+    order_index: 1,
+  },
+  {
+    id: '5',
+    title: 'AI Assisted Project 2',
+    description: 'Update this via the admin panel. Built with AI assistance during a college hackathon.',
+    tech_stack: ['React', 'AI'],
+    github_url: '',
+    live_url: '',
+    image_url: '',
+    is_featured: false,
+    project_type: 'hobby',
+    order_index: 2,
+  },
+  {
+    id: '6',
+    title: 'AI Assisted Project 3',
+    description: 'Update this via the admin panel. Built with AI assistance during a college hackathon.',
+    tech_stack: ['Python', 'AI'],
+    github_url: '',
+    live_url: '',
+    image_url: '',
+    is_featured: false,
+    project_type: 'hobby',
+    order_index: 3,
+  },
+  {
+    id: '7',
+    title: 'AI Assisted Project 4',
+    description: 'Update this via the admin panel. Built with AI assistance during a college hackathon.',
+    tech_stack: ['JavaScript', 'AI'],
+    github_url: '',
+    live_url: '',
+    image_url: '',
+    is_featured: false,
+    project_type: 'hobby',
+    order_index: 4,
+  },
+]
+
+export const seedSkills: Skill[] = [
+  { id: '1', name: 'Python', category: 'Languages', level: 85, order_index: 1 },
+  { id: '2', name: 'SQL', category: 'Languages', level: 80, order_index: 2 },
+  { id: '3', name: 'Pandas', category: 'Libraries', level: 85, order_index: 3 },
+  { id: '4', name: 'NumPy', category: 'Libraries', level: 80, order_index: 4 },
+  { id: '5', name: 'Matplotlib', category: 'Libraries', level: 75, order_index: 5 },
+  { id: '6', name: 'Seaborn', category: 'Libraries', level: 75, order_index: 6 },
+  { id: '7', name: 'Scikit-learn', category: 'Libraries', level: 60, order_index: 7 },
+  { id: '8', name: 'PostgreSQL', category: 'Databases', level: 75, order_index: 8 },
+  { id: '9', name: 'Power BI', category: 'Visualization', level: 50, order_index: 9 },
+  { id: '10', name: 'MS Excel', category: 'Visualization', level: 55, order_index: 10 },
+  { id: '11', name: 'Jupyter Notebook', category: 'Tools', level: 85, order_index: 11 },
+  { id: '12', name: 'VS Code', category: 'Tools', level: 90, order_index: 12 },
+  { id: '13', name: 'Git & GitHub', category: 'Tools', level: 80, order_index: 13 },
+  { id: '14', name: 'React', category: 'Web', level: 70, order_index: 14 },
+  { id: '15', name: 'TypeScript', category: 'Web', level: 65, order_index: 15 },
+]
+
+export const seedCertifications: Certification[] = [
+  { id: '1', title: 'Data Analysis with Python', issuer: 'freeCodeCamp', date: 'Apr 2026', credential_url: '', order_index: 1 },
+  { id: '2', title: 'Data Cleaning', issuer: 'Kaggle', date: 'Apr 2026', credential_url: '', order_index: 2 },
+  { id: '3', title: 'Pandas', issuer: 'Kaggle', date: 'Apr 2026', credential_url: '', order_index: 3 },
+  { id: '4', title: 'Python Developer', issuer: 'freeCodeCamp', date: '2025', credential_url: '', order_index: 4 },
+  { id: '5', title: 'Statistics & Mathematics for Data Science', issuer: 'Udemy', date: 'Oct 2025', credential_url: '', order_index: 5 },
+]
+
+export const seedEducation: Education[] = [
+  { id: '1', degree: 'Bachelor of Computer Applications (BCA)', institution: 'NIE First Grade College, Mysore', period: '2023 – 2026 (Pursuing)', score: 'CGPA: 8.78 / 10', order_index: 1 },
+]
+
+export const seedHackathons: Hackathon[] = [
+  {
+    id: '1',
+    title: '1st Prize — Codathon, College Hackathon',
+    prize: '1st Place',
+    year: '2025',
+    description: 'Built a full-stack web application under hackathon time constraints using React, TypeScript, and Supabase. Deployed live on Vercel handling UI, database schema, and authentication flow.',
+    live_url: 'https://goat-fuel-virid.vercel.app',
+    order_index: 1,
+  },
+]
