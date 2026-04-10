@@ -7,6 +7,12 @@
     --gold: #C9A84C;
     --gold-bright: #F0C060;
     --cyan: #4FC3F7;
+    /* Light mode page bg */
+    --page-bg: #ffffff;
+  }
+
+  .dark {
+    --page-bg: #060810;
   }
 
   * { box-sizing: border-box; }
@@ -18,7 +24,6 @@
     font-size: 16px;
     font-weight: 400;
     transition: background 0.4s, color 0.4s;
-    /* Prevent horizontal overflow on mobile */
     overflow-x: hidden;
   }
 
@@ -52,9 +57,11 @@
     @apply mb-8;
   }
 
+  /* Card: explicit bg + text for both modes */
   .card-base {
     @apply rounded-xl border transition-all duration-300;
-    @apply bg-gray-50 border-gray-200 dark:bg-dark-card dark:border-white/5;
+    @apply bg-white border-gray-200 text-gray-900;
+    @apply dark:bg-dark-card dark:border-white/5 dark:text-gray-100;
   }
   .card-base:hover {
     border-color: rgba(201,168,76,0.35);
@@ -71,7 +78,6 @@
     background: transparent;
     position: relative;
     overflow: hidden;
-    /* Min touch target on mobile */
     min-height: 44px;
     display: inline-flex;
     align-items: center;
@@ -86,6 +92,7 @@
   .btn-gold:hover::before { left: 0; }
   .btn-gold:hover { box-shadow: 0 0 20px rgba(201,168,76,0.3); }
 
+  /* body-text: dark gray on light, light gray on dark */
   .body-text {
     font-family: 'DM Sans', sans-serif;
     font-weight: 400;
@@ -117,9 +124,9 @@
     animation: shimmer 3s linear infinite;
   }
 
-  /* Mobile-safe sections — padding that works on small screens */
-  section {
-    @apply px-4 sm:px-6;
+  /* Skill bar track — visible in both modes */
+  .skill-track {
+    @apply h-1 rounded-full overflow-hidden bg-gray-200 dark:bg-white/10;
   }
 }
 
@@ -141,8 +148,8 @@
   to{ transform: translateY(100vh); }
 }
 
-/* ── Iron Man Theme ─────────────────────────────────────────── */
-.ironman-bg {
+/* ── Iron Man Theme — dark mode only ───────────────── */
+.dark .ironman-bg {
   background:
     radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139,26,26,0.18) 0%, transparent 70%),
     radial-gradient(ellipse 60% 40% at 80% 60%, rgba(201,168,76,0.06) 0%, transparent 60%),
@@ -150,7 +157,12 @@
     linear-gradient(180deg, #0d0608 0%, #100608 40%, #0d0508 100%);
 }
 
-.hero-glow {
+/* Light mode: clean white background */
+.ironman-bg {
+  @apply bg-white dark:bg-dark;
+}
+
+.dark .hero-glow {
   position: absolute;
   top: 35%; left: 50%;
   transform: translate(-50%, -50%);
@@ -158,6 +170,15 @@
   background: radial-gradient(ellipse, rgba(139,26,26,0.14) 0%, rgba(201,168,76,0.04) 40%, transparent 70%);
   pointer-events: none;
   filter: blur(50px);
+  z-index: 0;
+}
+
+.hero-glow {
+  position: absolute;
+  top: 35%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(700px, 100vw); height: 350px;
+  pointer-events: none;
   z-index: 0;
 }
 
