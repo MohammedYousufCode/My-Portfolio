@@ -93,6 +93,10 @@ export default function Admin() {
   const [certs, setCerts] = useState<Certification[]>(seedCertifications)
   const [uploading, setUploading] = useState<string | null>(null)
 
+  // Track original IDs loaded from Supabase so we can delete removed ones
+  const [originalProjectIds, setOriginalProjectIds] = useState<string[]>([])
+  const [originalCertIds, setOriginalCertIds] = useState<string[]>([])
+
   useEffect(() => {
     if (!authed || !hasSupabase) return
     const load = async () => {
@@ -103,21 +107,48 @@ export default function Admin() {
         supabase.from('certifications').select('*').order('order_index'),
       ])
       if (p.data) setProfile(p.data)
-      if (pr.data?.length) setProjects(pr.data)
+      if (pr.data?.length) {
+        setProjects(pr.data)
+        setOriginalProjectIds(pr.data.map((p: Project) => p.id))
+      }
       if (sk.data?.length) setSkills(sk.data)
-      if (ce.data?.length) setCerts(ce.data)
+      if (ce.data?.length) {
+        setCerts(ce.data)
+        setOriginalCertIds(ce.data.map((c: Certification) => c.id))
+      }
     }
     load()
   }, [authed])
 
   const saveAll = async () => {
     if (!hasSupabase) { alert('Add Supabase keys to .env to save data'); return }
+
+    const currentProjectIds = projects.map(p => p.id)
+    const currentCertIds = certs.map(c => c.id)
+
+    const deletedProjectIds = originalProjectIds.filter(id => !currentProjectIds.includes(id))
+    const deletedCertIds = originalCertIds.filter(id => !currentCertIds.includes(id))
+
     await Promise.all([
       supabase.from('profile').upsert(profile),
+      // Delete removed projects from Supabase
+      ...(deletedProjectIds.length > 0
+        ? [supabase.from('projects').delete().in('id', deletedProjectIds)]
+        : []),
+      // Delete removed certs from Supabase
+      ...(deletedCertIds.length > 0
+        ? [supabase.from('certifications').delete().in('id', deletedCertIds)]
+        : []),
+      // Upsert remaining
       ...projects.map(p => supabase.from('projects').upsert(p)),
       ...skills.map(s => supabase.from('skills').upsert(s)),
       ...certs.map(c => supabase.from('certifications').upsert(c)),
     ])
+
+    // Update tracked IDs after successful save
+    setOriginalProjectIds(currentProjectIds)
+    setOriginalCertIds(currentCertIds)
+
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }

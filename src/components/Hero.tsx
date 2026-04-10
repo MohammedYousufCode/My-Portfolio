@@ -42,7 +42,7 @@ export default function Hero({ profile }: { profile: Profile }) {
       <div className="hero-glow" />
       <div className="max-w-6xl w-full mx-auto">
         <motion.div variants={stagger} initial="hidden" animate="show"
-          className="grid md:grid-cols-2 gap-16 items-center">
+          className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
 
           {/* Left: Text */}
           <div>
@@ -103,8 +103,8 @@ export default function Hero({ profile }: { profile: Profile }) {
           </div>
 
           {/* Right: Photo / Avatar */}
-          <motion.div variants={item} className="hidden md:flex justify-center">
-            <div className="relative w-72 h-72">
+          <motion.div variants={item} className="flex justify-center">
+            <div className="relative w-48 h-48 md:w-72 md:h-72">
               {/* Rotating ring */}
               <div className="absolute inset-0 rounded-full border border-yellow-500/20 animate-spin"
                 style={{ animationDuration: '12s' }} />

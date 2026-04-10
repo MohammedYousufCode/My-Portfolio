@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Moon, Sun, Menu, X } from 'lucide-react'
+import { Moon, Sun, Menu, X, Settings } from 'lucide-react'
 import { useTheme } from '../lib/theme'
 
 const links = [
@@ -58,6 +58,12 @@ export default function Navbar() {
               hover:border-yellow-500 transition-colors duration-200 text-gray-600 dark:text-gray-300">
             {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
           </button>
+          <a href="/admin"
+            title="Admin Panel"
+            className="w-9 h-9 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center
+              hover:border-yellow-500 transition-colors duration-200 text-gray-400 dark:text-gray-500 hover:text-yellow-500">
+            <Settings size={15} />
+          </a>
           <button onClick={() => setOpen(o => !o)} className="md:hidden text-gray-600 dark:text-gray-300">
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
