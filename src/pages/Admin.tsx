@@ -60,7 +60,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
         <span className="font-mono text-sm tracking-widest uppercase text-gray-700 dark:text-gray-300">{title}</span>
         {open ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
       </button>
-      {open && <div className="p-6">{children}</div>}
+      {open && <div className="p-4 md:p-6">{children}</div>}
     </div>
   )
 }
@@ -87,15 +87,15 @@ function Field({ label, value, onChange, type = 'text', rows }: {
 export default function Admin() {
   const [authed, setAuthed] = useState(sessionStorage.getItem('admin') === '1')
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [profile, setProfile] = useState<Profile>(seedProfile)
   const [projects, setProjects] = useState<Project[]>(seedProjects)
+  const [deletedProjectIds, setDeletedProjectIds] = useState<string[]>([])
   const [skills, setSkills] = useState<Skill[]>(seedSkills)
+  const [deletedSkillIds, setDeletedSkillIds] = useState<string[]>([])
   const [certs, setCerts] = useState<Certification[]>(seedCertifications)
+  const [deletedCertIds, setDeletedCertIds] = useState<string[]>([])
   const [uploading, setUploading] = useState<string | null>(null)
-
-  // Track original IDs loaded from Supabase so we can delete removed ones
-  const [originalProjectIds, setOriginalProjectIds] = useState<string[]>([])
-  const [originalCertIds, setOriginalCertIds] = useState<string[]>([])
 
   useEffect(() => {
     if (!authed || !hasSupabase) return
@@ -107,50 +107,62 @@ export default function Admin() {
         supabase.from('certifications').select('*').order('order_index'),
       ])
       if (p.data) setProfile(p.data)
-      if (pr.data?.length) {
-        setProjects(pr.data)
-        setOriginalProjectIds(pr.data.map((p: Project) => p.id))
-      }
+      if (pr.data?.length) setProjects(pr.data)
       if (sk.data?.length) setSkills(sk.data)
-      if (ce.data?.length) {
-        setCerts(ce.data)
-        setOriginalCertIds(ce.data.map((c: Certification) => c.id))
-      }
+      if (ce.data?.length) setCerts(ce.data)
     }
     load()
   }, [authed])
 
+  // FIX: properly delete from Supabase AND local state
+  const deleteProject = async (id: string) => {
+    setProjects(ps => ps.filter(p => p.id !== id))
+    if (hasSupabase) {
+      setDeletedProjectIds(ids => [...ids, id])
+    }
+  }
+
+  const deleteSkill = (id: string) => {
+    setSkills(ss => ss.filter(s => s.id !== id))
+    if (hasSupabase) setDeletedSkillIds(ids => [...ids, id])
+  }
+
+  const deleteCert = (id: string) => {
+    setCerts(cs => cs.filter(c => c.id !== id))
+    if (hasSupabase) setDeletedCertIds(ids => [...ids, id])
+  }
+
   const saveAll = async () => {
     if (!hasSupabase) { alert('Add Supabase keys to .env to save data'); return }
+    setSaving(true)
+    try {
+      // Delete removed items first
+      await Promise.all([
+        ...deletedProjectIds.map(id => supabase.from('projects').delete().eq('id', id)),
+        ...deletedSkillIds.map(id => supabase.from('skills').delete().eq('id', id)),
+        ...deletedCertIds.map(id => supabase.from('certifications').delete().eq('id', id)),
+      ])
 
-    const currentProjectIds = projects.map(p => p.id)
-    const currentCertIds = certs.map(c => c.id)
+      // Upsert remaining items
+      await Promise.all([
+        supabase.from('profile').upsert(profile),
+        ...projects.map(p => supabase.from('projects').upsert(p)),
+        ...skills.map(s => supabase.from('skills').upsert(s)),
+        ...certs.map(c => supabase.from('certifications').upsert(c)),
+      ])
 
-    const deletedProjectIds = originalProjectIds.filter(id => !currentProjectIds.includes(id))
-    const deletedCertIds = originalCertIds.filter(id => !currentCertIds.includes(id))
+      // Clear deleted ID queues
+      setDeletedProjectIds([])
+      setDeletedSkillIds([])
+      setDeletedCertIds([])
 
-    await Promise.all([
-      supabase.from('profile').upsert(profile),
-      // Delete removed projects from Supabase
-      ...(deletedProjectIds.length > 0
-        ? [supabase.from('projects').delete().in('id', deletedProjectIds)]
-        : []),
-      // Delete removed certs from Supabase
-      ...(deletedCertIds.length > 0
-        ? [supabase.from('certifications').delete().in('id', deletedCertIds)]
-        : []),
-      // Upsert remaining
-      ...projects.map(p => supabase.from('projects').upsert(p)),
-      ...skills.map(s => supabase.from('skills').upsert(s)),
-      ...certs.map(c => supabase.from('certifications').upsert(c)),
-    ])
-
-    // Update tracked IDs after successful save
-    setOriginalProjectIds(currentProjectIds)
-    setOriginalCertIds(currentCertIds)
-
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (e) {
+      alert('Save failed. Check console.')
+      console.error(e)
+    }
+    setSaving(false)
   }
 
   const uploadFile = async (file: File, bucket: string, field: 'photo_url' | 'resume_url') => {
@@ -183,28 +195,28 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark">
       {/* Top bar */}
-      <div className="sticky top-0 z-50 bg-white/90 dark:bg-dark-nav/90 backdrop-blur-md border-b border-gray-100 dark:border-white/5 px-6 py-4 flex items-center justify-between">
-        <div>
-          <span className="font-cinzel font-bold text-sm" style={{ color: 'var(--gold)' }}>ADMIN PANEL</span>
-          <span className="font-mono text-xs text-gray-400 ml-4 tracking-widest">M.YOUSUF PORTFOLIO</span>
+      <div className="sticky top-0 z-50 bg-white/90 dark:bg-dark-nav/90 backdrop-blur-md border-b border-gray-100 dark:border-white/5 px-4 py-3 flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <span className="font-cinzel font-bold text-sm" style={{ color: 'var(--gold)' }}>ADMIN</span>
+          <span className="font-mono text-xs text-gray-400 ml-2 tracking-widest hidden sm:inline">M.YOUSUF</span>
         </div>
-        <div className="flex gap-3">
-          <a href="/" target="_blank" className="btn-gold flex items-center gap-2 text-xs py-2">
-            <Eye size={13} /> Preview
+        <div className="flex gap-2 flex-shrink-0">
+          <a href="/" target="_blank" className="btn-gold flex items-center gap-1.5 text-xs py-2 px-3">
+            <Eye size={13} /> <span className="hidden sm:inline">Preview</span>
           </a>
-          <button onClick={saveAll}
-            className={`btn-gold flex items-center gap-2 text-xs py-2 ${saved ? 'opacity-70' : ''}`}
+          <button onClick={saveAll} disabled={saving}
+            className={`btn-gold flex items-center gap-1.5 text-xs py-2 px-3 ${saved ? 'opacity-70' : ''}`}
             style={saved ? { borderColor: '#34d399', color: '#34d399' } : {}}>
-            <Save size={13} /> {saved ? 'Saved!' : 'Save All'}
+            <Save size={13} /> {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save'}
           </button>
           <button onClick={() => { sessionStorage.removeItem('admin'); setAuthed(false) }}
-            className="btn-gold flex items-center gap-2 text-xs py-2" style={{ borderColor: 'rgba(239,68,68,0.4)', color: '#ef4444' }}>
+            className="btn-gold flex items-center gap-1.5 text-xs py-2 px-3" style={{ borderColor: 'rgba(239,68,68,0.4)', color: '#ef4444' }}>
             <LogOut size={13} />
           </button>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-4 py-8">
 
         {!hasSupabase && (
           <div className="mb-6 p-4 rounded-lg font-mono text-xs tracking-wider"
@@ -235,7 +247,7 @@ export default function Admin() {
           <div className="mt-6 grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-mono text-xs text-gray-400 tracking-widest uppercase mb-2">Profile Photo</label>
-              <div className="flex gap-3 items-center">
+              <div className="flex gap-3 items-center mb-2">
                 {profile.photo_url && <img src={profile.photo_url} className="w-12 h-12 rounded-full object-cover border-2" style={{ borderColor: 'var(--gold)' }} />}
                 <label className="btn-gold flex items-center gap-2 text-xs py-2 cursor-pointer">
                   <Upload size={13} /> {uploading === 'photo_url' ? 'Uploading...' : 'Upload Photo'}
@@ -262,11 +274,11 @@ export default function Admin() {
           <div className="space-y-6">
             {projects.map((proj, i) => (
               <div key={proj.id} className="p-4 rounded-lg border border-gray-100 dark:border-white/5 relative">
-                <button onClick={() => setProjects(ps => ps.filter(p => p.id !== proj.id))}
-                  className="absolute top-3 right-3 text-red-400 hover:text-red-500 transition-colors">
+                <button onClick={() => deleteProject(proj.id)}
+                  className="absolute top-3 right-3 text-red-400 hover:text-red-500 transition-colors p-1">
                   <Trash2 size={15} />
                 </button>
-                <div className="grid sm:grid-cols-2 gap-3 pr-6">
+                <div className="grid sm:grid-cols-2 gap-3 pr-8">
                   <Field label="Title" value={proj.title} onChange={v => setProjects(ps => ps.map((p, j) => j === i ? { ...p, title: v } : p))} />
                   <Field label="GitHub URL" value={proj.github_url} onChange={v => setProjects(ps => ps.map((p, j) => j === i ? { ...p, github_url: v } : p))} />
                   <Field label="Live URL" value={proj.live_url} onChange={v => setProjects(ps => ps.map((p, j) => j === i ? { ...p, live_url: v } : p))} />
@@ -336,7 +348,7 @@ export default function Admin() {
                     onChange={e => setSkills(ss => ss.map((s, j) => j === i ? { ...s, level: +e.target.value } : s))}
                     className="px-2 py-1.5 rounded font-mono text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 outline-none" />
                 </div>
-                <button onClick={() => setSkills(ss => ss.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-500">
+                <button onClick={() => deleteSkill(sk.id)} className="text-red-400 hover:text-red-500 p-1">
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -352,7 +364,7 @@ export default function Admin() {
         <Section title="Certifications">
           <div className="space-y-3">
             {certs.map((cert, i) => (
-              <div key={cert.id} className="grid sm:grid-cols-4 gap-2 items-center p-3 rounded-lg border border-gray-100 dark:border-white/5">
+              <div key={cert.id} className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center p-3 rounded-lg border border-gray-100 dark:border-white/5">
                 <input value={cert.title} onChange={e => setCerts(cs => cs.map((c, j) => j === i ? { ...c, title: e.target.value } : c))}
                   placeholder="Title" className="sm:col-span-2 px-2 py-1.5 rounded font-rajdhani text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 outline-none" />
                 <input value={cert.issuer} onChange={e => setCerts(cs => cs.map((c, j) => j === i ? { ...c, issuer: e.target.value } : c))}
@@ -360,7 +372,7 @@ export default function Admin() {
                 <div className="flex gap-2">
                   <input value={cert.date} onChange={e => setCerts(cs => cs.map((c, j) => j === i ? { ...c, date: e.target.value } : c))}
                     placeholder="Date" className="flex-1 px-2 py-1.5 rounded font-mono text-xs bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 outline-none" />
-                  <button onClick={() => setCerts(cs => cs.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-500">
+                  <button onClick={() => deleteCert(cert.id)} className="text-red-400 hover:text-red-500 p-1">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -373,11 +385,11 @@ export default function Admin() {
           </button>
         </Section>
 
-        <div className="flex justify-end mt-4">
-          <button onClick={saveAll}
+        <div className="flex justify-end mt-4 pb-10">
+          <button onClick={saveAll} disabled={saving}
             className={`btn-gold flex items-center gap-2 ${saved ? 'opacity-70' : ''}`}
             style={saved ? { borderColor: '#34d399', color: '#34d399' } : {}}>
-            <Save size={15} /> {saved ? '✓ Saved!' : 'Save All Changes'}
+            <Save size={15} /> {saving ? 'Saving...' : saved ? '✓ Saved!' : 'Save All Changes'}
           </button>
         </div>
       </div>

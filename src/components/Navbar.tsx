@@ -28,7 +28,7 @@ export default function Navbar() {
         ? 'bg-white/90 dark:bg-dark-nav/90 backdrop-blur-md shadow-lg shadow-black/10'
         : 'bg-transparent'
     }`}>
-      <div className="max-w-6xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 md:px-10 h-14 md:h-16 flex items-center justify-between">
 
         {/* Logo */}
         <a href="#hero" className="font-playfair text-sm font-bold tracking-widest"
@@ -52,19 +52,22 @@ export default function Navbar() {
         </ul>
 
         {/* Right controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button onClick={toggle}
             className="w-9 h-9 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center
               hover:border-yellow-500 transition-colors duration-200 text-gray-600 dark:text-gray-300">
             {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
           </button>
+
+          {/* Admin toggle — always visible */}
           <a href="/admin"
-            title="Admin Panel"
             className="w-9 h-9 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center
-              hover:border-yellow-500 transition-colors duration-200 text-gray-400 dark:text-gray-500 hover:text-yellow-500">
+              hover:border-yellow-500 transition-colors duration-200 text-gray-400 hover:text-yellow-500"
+            title="Admin Panel">
             <Settings size={15} />
           </a>
-          <button onClick={() => setOpen(o => !o)} className="md:hidden text-gray-600 dark:text-gray-300">
+
+          <button onClick={() => setOpen(o => !o)} className="md:hidden text-gray-600 dark:text-gray-300 ml-1">
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
@@ -80,6 +83,10 @@ export default function Navbar() {
               {l.label}
             </a>
           ))}
+          <a href="/admin" className="block py-3 font-mono text-sm tracking-widest uppercase
+            text-gray-400 hover:text-yellow-500 transition-colors flex items-center gap-2 mt-1">
+            <Settings size={14} /> Admin Panel
+          </a>
         </div>
       )}
     </nav>
