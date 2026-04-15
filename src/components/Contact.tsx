@@ -83,7 +83,7 @@ export default function Contact({ profile }: { profile: Profile }) {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-20 pt-8 border-t border-gray-100 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
           <span className="font-mono text-xs text-gray-400 tracking-widest">
-            © {new Date().getFullYear()} MOHAMMED YOUSUF — BUILT WITH AI
+            © {new Date().getFullYear()} MOHAMMED YOUSUF — BUILT WITH JARVIS
           </span>
           <span className="font-mono text-xs tracking-widest" style={{ color: 'var(--gold)' }}>
             OPEN TO WORK
