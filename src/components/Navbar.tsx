@@ -55,7 +55,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <button onClick={toggle}
             title="Toggle Light/Dark Mode"
-            className="w-10 h-10 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center
+            className="w-9 h-9 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center
               hover:border-yellow-500 transition-colors duration-200 text-gray-600 dark:text-gray-300">
             {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
           </button>

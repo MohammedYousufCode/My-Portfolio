@@ -85,7 +85,6 @@ export default function Hero({ profile }: { profile: Profile }) {
           {/* Text content */}
           <div className="text-center md:text-left">
             <motion.p variants={item} className="section-label flex items-center justify-center md:justify-start gap-3 mb-4">
-              <span className="w-8 h-px bg-cyan-400 inline-block" style={{ background: 'var(--cyan)' }} />
               Available from {profile.available_from}
             </motion.p>
 
@@ -148,7 +147,7 @@ export default function Hero({ profile }: { profile: Profile }) {
           {[
             { value: profile.cgpa, label: 'CGPA', suffix: '/10' },
             { value: profile.total_certs, label: 'Certifications', suffix: '+' },
-            { value: '3', label: 'Projects', suffix: '' },
+            { value: '3', label: 'Projects', suffix: '+' },
             { value: profile.hackathon_prize, label: 'Hackathon', suffix: '' },
           ].map(({ value, label, suffix }) => (
             <div key={label}
