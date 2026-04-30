@@ -52,7 +52,7 @@ export default function Hero({ profile }: { profile: Profile }) {
                 style={{ animationDuration: '8s', animationDirection: 'reverse' }} />
 
               {/* Photo */}
-              <div className="absolute inset-6 rounded-full overflow-hidden border-2 animate-float"
+              <div className="absolute inset-6 rounded-full overflow-hidden border-2"
                 style={{ borderColor: 'var(--gold)', boxShadow: '0 0 40px rgba(201,168,76,0.2)' }}>
                 {profile.photo_url ? (
                   <img
@@ -92,8 +92,8 @@ export default function Hero({ profile }: { profile: Profile }) {
             <motion.h1 variants={item}
               className="font-cinzel font-black leading-tight mb-4"
               style={{ fontSize: 'clamp(2rem, 8vw, 3.6rem)' }}>
-              <span className="block text-gray-900 dark:text-white">Mohammed</span>
-              <span className="block shimmer-text">Yousuf</span>
+              <span className="block text-white">Mohammed</span>
+              <span className="block text-white">Yousuf</span>
             </motion.h1>
 
             <motion.div variants={item} className="text-base md:text-lg mb-5 h-7 font-mono font-medium"
