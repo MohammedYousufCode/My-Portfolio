@@ -1,10 +1,14 @@
 import { motion } from 'framer-motion'
 import { useScrollReveal } from '../hooks/useScrollReveal'
+import { useTheme } from '../lib/theme'
 import { Mail, Phone, MapPin, Github, Linkedin } from 'lucide-react'
 import type { Profile } from '../lib/supabase'
 
 export default function Contact({ profile }: { profile: Profile }) {
   const { ref, visible } = useScrollReveal()
+  const { theme } = useTheme()
+
+  const goldColor = theme === 'dark' ? '#C9A84C' : '#8b6914'
 
   const contacts = [
     { icon: Mail, label: 'Email', value: profile.email, href: `mailto:${profile.email}` },
@@ -54,7 +58,7 @@ export default function Contact({ profile }: { profile: Profile }) {
                     className="card-base p-4 flex items-center gap-4 hover:scale-[1.01] transition-transform">
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                       style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)' }}>
-                      <Icon size={15} style={{ color: 'var(--gold)' }} />
+                    <Icon size={15} style={{ color: goldColor }} />
                     </div>
                     <div>
                       <div className="font-mono text-xs text-gray-400 tracking-widest uppercase">{label}</div>
@@ -65,7 +69,7 @@ export default function Contact({ profile }: { profile: Profile }) {
                   <div className="card-base p-4 flex items-center gap-4">
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                       style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)' }}>
-                      <Icon size={15} style={{ color: 'var(--gold)' }} />
+                      <Icon size={15} style={{ color: goldColor }} />
                     </div>
                     <div>
                       <div className="font-mono text-xs text-gray-400 tracking-widest uppercase">{label}</div>
@@ -82,10 +86,10 @@ export default function Contact({ profile }: { profile: Profile }) {
         <motion.div initial={{ opacity: 0 }} animate={visible ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-20 pt-8 border-t border-gray-100 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-mono text-xs text-gray-400 tracking-widest">
+          <span className="font-mono text-xs text-gray-500 dark:text-gray-400 tracking-widest">
             © {new Date().getFullYear()} MOHAMMED YOUSUF — BUILT WITH JARVIS
           </span>
-          <span className="font-mono text-xs tracking-widest" style={{ color: 'var(--gold)' }}>
+          <span className="font-mono text-xs tracking-widest" style={{ color: goldColor }}>
             OPEN TO WORK
           </span>
         </motion.div>

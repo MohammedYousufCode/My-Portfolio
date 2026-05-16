@@ -4,15 +4,19 @@
 
 @layer base {
   :root {
-    --gold: #C9A84C;
+    --gold: #D4A853;
     --gold-bright: #F0C060;
-    --cyan: #4FC3F7;
+    --cyan: #0891b2;
+    --gold-light: #92783a;
+    --cyan-light: #0a8fa0;
     /* Light mode page bg */
     --page-bg: #ffffff;
   }
 
   .dark {
     --page-bg: #060810;
+    --gold: #C9A84C;
+    --cyan: #4FC3F7;
   }
 
   * { box-sizing: border-box; }

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTheme } from '../lib/theme'
 
 interface MarqueeProps {
   items: string[]
@@ -9,6 +10,8 @@ interface MarqueeProps {
 
 export default function Marquee({ items, speed = 35, reverse = false, className = '' }: MarqueeProps) {
   const trackRef = useRef<HTMLDivElement>(null)
+  const { theme } = useTheme()
+  const goldColor = theme === 'dark' ? '#C9A84C' : '#8b6914'
 
   useEffect(() => {
     const track = trackRef.current
@@ -46,7 +49,7 @@ export default function Marquee({ items, speed = 35, reverse = false, className 
             className="flex items-center gap-3 px-5 py-2.5 rounded-full border font-mono text-xs tracking-widest uppercase whitespace-nowrap
               border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400
               hover:border-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors cursor-default">
-            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: 'var(--gold)' }} />
+            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: goldColor }} />
             {item}
           </span>
         ))}

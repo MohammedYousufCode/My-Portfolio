@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion'
 import { useScrollReveal } from '../hooks/useScrollReveal'
+import { useTheme } from '../lib/theme'
 import { GraduationCap, Trophy, ExternalLink } from 'lucide-react'
 import type { Education, Hackathon } from '../lib/supabase'
 
 export default function EducationSection({ education, hackathons }: { education: Education[]; hackathons: Hackathon[] }) {
   const { ref, visible } = useScrollReveal()
+  const { theme } = useTheme()
+  const goldColor = theme === 'dark' ? '#C9A84C' : '#8b6914'
 
   return (
     <section id="education" className="relative z-10 py-16 md:py-24 px-5 md:px-6">
@@ -22,14 +25,14 @@ export default function EducationSection({ education, hackathons }: { education:
           {/* Education timeline */}
           <div>
             <div className="flex items-center gap-2 mb-6">
-              <GraduationCap size={16} style={{ color: 'var(--gold)' }} />
-              <span className="font-mono text-xs tracking-widest uppercase text-gray-400">Education</span>
+              <GraduationCap size={16} style={{ color: goldColor }} />
+              <span className="font-mono text-xs tracking-widest uppercase text-gray-500 dark:text-gray-400">Education</span>
             </div>
 
             <div className="relative">
               {/* Vertical line */}
               <div className="absolute left-3 top-0 bottom-0 w-px"
-                style={{ background: 'linear-gradient(180deg, var(--gold), transparent)' }} />
+                style={{ background: `linear-gradient(180deg, ${goldColor}, transparent)` }} />
 
               {education.map((edu, i) => (
                 <motion.div key={edu.id}
@@ -39,17 +42,17 @@ export default function EducationSection({ education, hackathons }: { education:
 
                   {/* Dot */}
                   <div className="absolute left-0 top-1 w-6 h-6 rounded-full border-2 flex items-center justify-center"
-                    style={{ borderColor: 'var(--gold)', background: 'var(--black)' }}>
-                    <div className="w-2 h-2 rounded-full" style={{ background: 'var(--gold)' }} />
+                    style={{ borderColor: goldColor, background: 'var(--black)' }}>
+                    <div className="w-2 h-2 rounded-full" style={{ background: goldColor }} />
                   </div>
 
                   <div className="card-base p-5">
                     <h3 className=" font-bold text-gray-900 dark:text-white text-base mb-1">{edu.degree}</h3>
-                    <p className="font-mono text-xs text-gray-400 tracking-wider mb-2">{edu.institution}</p>
+                    <p className="font-mono text-xs text-gray-500 dark:text-gray-400 tracking-wider mb-2">{edu.institution}</p>
                     <div className="flex items-center justify-between flex-wrap gap-2">
-                      <span className="font-mono text-xs text-gray-500">{edu.period}</span>
+                      <span className="font-mono text-xs text-gray-600 dark:text-gray-500">{edu.period}</span>
                       <span className="font-mono text-xs px-2 py-1 rounded"
-                        style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--gold)' }}>
+                        style={{ background: 'rgba(201,168,76,0.1)', color: goldColor }}>
                         {edu.score}
                       </span>
                     </div>
@@ -62,8 +65,8 @@ export default function EducationSection({ education, hackathons }: { education:
           {/* Hackathons */}
           <div>
             <div className="flex items-center gap-2 mb-6">
-              <Trophy size={16} style={{ color: 'var(--gold)' }} />
-              <span className="font-mono text-xs tracking-widest uppercase text-gray-400">Hackathons & Prizes</span>
+              <Trophy size={16} style={{ color: goldColor }} />
+              <span className="font-mono text-xs tracking-widest uppercase text-gray-500 dark:text-gray-400">Hackathons & Prizes</span>
             </div>
 
             <div className="space-y-4">
@@ -74,17 +77,17 @@ export default function EducationSection({ education, hackathons }: { education:
                   className="card-base p-5 group relative overflow-hidden">
 
                   <div className="absolute top-0 left-0 bottom-0 w-0.5"
-                    style={{ background: 'var(--gold)' }} />
+                    style={{ background: goldColor }} />
 
                   <div className="flex items-start justify-between gap-4 mb-2 pl-2">
                     <div>
                       <span className="text-xl mr-2">🏆</span>
                       <span className="font-mono text-xs px-2 py-0.5 rounded"
-                        style={{ background: 'rgba(201,168,76,0.12)', color: 'var(--gold)' }}>
+                        style={{ background: 'rgba(201,168,76,0.12)', color: goldColor }}>
                         {h.prize}
                       </span>
                     </div>
-                    <span className="font-mono text-xs text-gray-400">{h.year}</span>
+                    <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{h.year}</span>
                   </div>
 
                   <h3 className=" font-bold text-gray-900 dark:text-white mb-2 pl-2">{h.title}</h3>
@@ -92,7 +95,7 @@ export default function EducationSection({ education, hackathons }: { education:
 
                   {h.live_url && (
                     <a href={h.live_url} target="_blank" rel="noreferrer"
-                      className="pl-2 flex items-center gap-1 font-mono text-xs text-gray-400 hover:text-yellow-500 transition-colors">
+                      className="pl-2 flex items-center gap-1 font-mono text-xs text-gray-500 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors">
                       <ExternalLink size={11} /> View Live
                     </a>
                   )}

@@ -15,6 +15,7 @@ export default function Navbar() {
   const { theme, toggle } = useTheme()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const goldColor = theme === 'dark' ? '#C9A84C' : '#8b6914'
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 40)
@@ -32,7 +33,7 @@ export default function Navbar() {
 
         {/* Logo */}
         <a href="#hero" className="font-playfair text-sm font-bold tracking-widest"
-          style={{ color: 'var(--gold)' }}>
+          style={{ color: goldColor }}>
           M.YOUSUF
         </a>
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Github, Linkedin, Mail, MapPin, Download } from 'lucide-react'
+import { useTheme } from '../lib/theme'
 import type { Profile } from '../lib/supabase'
 
 const roles = [
@@ -14,6 +15,9 @@ export default function Hero({ profile }: { profile: Profile }) {
   const [roleIndex, setRoleIndex] = useState(0)
   const [displayed, setDisplayed] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const { theme } = useTheme()
+  const cyanColor = theme === 'dark' ? '#4FC3F7' : '#0a8fa0'
+  const goldColor = theme === 'dark' ? '#C9A84C' : '#8b6914'
 
   useEffect(() => {
     const current = roles[roleIndex]
@@ -65,7 +69,7 @@ export default function Hero({ profile }: { profile: Profile }) {
                   <div className="w-full h-full flex flex-col items-center justify-center"
                     style={{ background: 'linear-gradient(135deg, #0a101e 0%, #131c35 100%)' }}>
                     <span className="name-heading text-4xl shimmer-text">MY</span>
-                    <span className="font-mono text-xs tracking-widest mt-2" style={{ color: 'var(--cyan)' }}>
+                    <span className="font-mono text-xs tracking-widest mt-2" style={{ color: cyanColor }}>
                       DATA ANALYST
                     </span>
                   </div>
@@ -91,12 +95,12 @@ export default function Hero({ profile }: { profile: Profile }) {
             <motion.h1 variants={item}
               className="font-cinzel font-black leading-tight mb-4"
               style={{ fontSize: 'clamp(2rem, 8vw, 3.6rem)' }}>
-              <span className="block text-white">Mohammed</span>
-              <span className="block text-white">Yousuf</span>
+              <span className="block text-gray-900 dark:text-white">Mohammed</span>
+              <span className="block text-gray-900 dark:text-white">Yousuf</span>
             </motion.h1>
 
             <motion.div variants={item} className="text-base md:text-lg mb-5 h-7 font-mono font-medium"
-              style={{ color: 'var(--cyan)' }}>
+              style={{ color: cyanColor }}>
               {displayed}<span className="cursor-blink" />
             </motion.div>
 
@@ -106,7 +110,7 @@ export default function Hero({ profile }: { profile: Profile }) {
             </motion.p>
 
             <motion.div variants={item} className="flex items-center justify-center md:justify-start gap-2 text-sm text-gray-400 mb-6 font-mono">
-              <MapPin size={13} style={{ color: 'var(--gold)' }} />
+              <MapPin size={13} style={{ color: goldColor }} />
               {profile.location}
             </motion.div>
 
@@ -117,7 +121,7 @@ export default function Hero({ profile }: { profile: Profile }) {
                   <Download size={14} /> Resume
                 </a>
               )}
-              <a href="#contact" className="btn-gold" style={{ borderColor: 'rgba(79,195,247,0.4)', color: 'var(--cyan)' }}>
+              <a href="#contact" className="btn-gold" style={{ borderColor: `rgba(79,195,247,0.4)`, color: cyanColor }}>
                 Hire Me
               </a>
             </motion.div>

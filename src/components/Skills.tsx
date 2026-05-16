@@ -1,25 +1,32 @@
 import { motion } from 'framer-motion'
 import { useScrollReveal } from '../hooks/useScrollReveal'
+import { useTheme } from '../lib/theme'
 import Marquee from './Marquee'
 import type { Skill } from '../lib/supabase'
 
-const categoryColor: Record<string, string> = {
-  Languages: '#C9A84C',
-  Libraries: '#4FC3F7',
-  Databases: '#a78bfa',
-  Visualization: '#34d399',
-  Tools: '#f87171',
-  Web: '#fb923c',
+const categoryColor: Record<string, { light: string; dark: string }> = {
+  Languages: { light: '#8b6914', dark: '#C9A84C' },
+  Libraries: { light: '#0a8fa0', dark: '#4FC3F7' },
+  Databases: { light: '#6b21a8', dark: '#a78bfa' },
+  Visualization: { light: '#047857', dark: '#34d399' },
+  Tools: { light: '#991b1b', dark: '#f87171' },
+  Web: { light: '#b45309', dark: '#fb923c' },
 }
 
 export default function Skills({ skills }: { skills: Skill[] }) {
   const { ref, visible } = useScrollReveal()
+  const { theme } = useTheme()
 
   const categories = Array.from(new Set(skills.map(s => s.category)))
 
   // Split for two marquee rows
   const row1 = skills.slice(0, Math.ceil(skills.length / 2)).map(s => s.name)
   const row2 = skills.slice(Math.ceil(skills.length / 2)).map(s => s.name)
+
+  const getColor = (cat: string) => {
+    const colors = categoryColor[cat] || { light: '#5a5a5a', dark: '#C9A84C' }
+    return theme === 'dark' ? colors.dark : colors.light
+  }
 
   return (
     <section id="skills" className="relative z-10 py-16 md:py-24">
@@ -38,7 +45,7 @@ export default function Skills({ skills }: { skills: Skill[] }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10 md:mb-16">
           {categories.map((cat, i) => {
             const catSkills = skills.filter(s => s.category === cat)
-            const color = categoryColor[cat] || '#C9A84C'
+            const color = getColor(cat)
             return (
               <motion.div key={cat}
                 initial={{ opacity: 0, y: 28 }} animate={visible ? { opacity: 1, y: 0 } : {}}
@@ -47,15 +54,15 @@ export default function Skills({ skills }: { skills: Skill[] }) {
 
                 <div className="flex items-center gap-2 mb-4">
                   <span className="w-2 h-2 rounded-full" style={{ background: color }} />
-                  <span className="font-mono text-xs tracking-widest uppercase text-gray-400">{cat}</span>
+                  <span className="font-mono text-xs tracking-widest uppercase text-gray-500 dark:text-gray-400">{cat}</span>
                 </div>
 
                 <div className="space-y-3">
                   {catSkills.map(skill => (
                     <div key={skill.id}>
                       <div className="flex justify-between items-center mb-1">
-                        <span className=" font-semibold text-sm text-gray-700 dark:text-gray-300">{skill.name}</span>
-                        <span className="font-mono text-xs text-gray-400">{skill.level}%</span>
+                        <span className="font-semibold text-sm text-gray-700 dark:text-gray-300">{skill.name}</span>
+                        <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{skill.level}%</span>
                       </div>
                       <div className="h-1 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
                         <motion.div className="h-full rounded-full"

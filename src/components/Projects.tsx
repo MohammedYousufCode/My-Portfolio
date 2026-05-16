@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion'
 import { useScrollReveal } from '../hooks/useScrollReveal'
+import { useTheme } from '../lib/theme'
 import { Github, ExternalLink, ImagePlus, BarChart2, Gamepad2 } from 'lucide-react'
 import type { Project } from '../lib/supabase'
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
   const { ref, visible } = useScrollReveal(0.1)
+  const { theme } = useTheme()
   const fromLeft = index % 2 === 0
   const hasLinks = project.github_url || project.live_url
+  const goldColor = theme === 'dark' ? '#C9A84C' : '#8b6914'
+  const cyanColor = theme === 'dark' ? '#4FC3F7' : '#0a8fa0'
 
   return (
     <motion.div ref={ref}
@@ -41,7 +45,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             {project.live_url && (
               <a href={project.live_url} target="_blank" rel="noreferrer"
                 className="btn-gold flex items-center gap-2 text-xs py-2 px-4"
-                style={{ borderColor: 'rgba(79,195,247,0.5)', color: 'var(--cyan)' }}>
+                style={{ borderColor: `rgba(79,195,247,0.5)`, color: cyanColor }}>
                 <ExternalLink size={13} /> Live
               </a>
             )}
@@ -50,7 +54,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
         {project.is_featured && (
           <div className="absolute top-3 right-3 px-2 py-1 font-mono text-xs tracking-widest rounded"
-            style={{ background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.4)', color: 'var(--gold)' }}>
+            style={{ background: `rgba(201,168,76,0.15)`, border: `1px solid rgba(201,168,76,0.4)`, color: goldColor }}>
             FEATURED
           </div>
         )}
@@ -68,7 +72,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         <div className="flex flex-wrap gap-1.5 mb-4">
           {project.tech_stack.map(t => (
             <span key={t} className="font-mono text-xs px-2 py-1 rounded"
-              style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', color: 'var(--gold)' }}>
+              style={{ background: `rgba(201,168,76,0.08)`, border: `1px solid rgba(201,168,76,0.2)`, color: goldColor }}>
               {t}
             </span>
           ))}
@@ -86,7 +90,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             {project.live_url && (
               <a href={project.live_url} target="_blank" rel="noreferrer"
                 className="flex-1 btn-gold flex items-center justify-center gap-2 text-xs py-2.5"
-                style={{ borderColor: 'rgba(79,195,247,0.5)', color: 'var(--cyan)' }}>
+                style={{ borderColor: `rgba(79,195,247,0.5)`, color: cyanColor }}>
                 <ExternalLink size={13} /> Live
               </a>
             )}
