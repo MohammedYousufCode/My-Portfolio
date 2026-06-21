@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { seedProfile, seedProjects, seedSkills, seedCertifications, seedEducation, seedHackathons } from '../lib/seed'
-import type { Profile, Project, Skill, Certification } from '../lib/supabase'
+import type { Profile, Project, Skill, Certification, Education, Hackathon } from '../lib/supabase'
 import { Lock, LogOut, Save, Plus, Trash2, Upload, Eye, ChevronDown, ChevronUp } from 'lucide-react'
 
 const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123'
@@ -10,6 +10,8 @@ const hasSupabase = !!(
   import.meta.env.VITE_SUPABASE_ANON_KEY &&
   import.meta.env.VITE_SUPABASE_URL !== 'your_supabase_project_url'
 )
+
+const SKILL_CATEGORIES = ['Languages', 'Libraries', 'Databases', 'Visualization', 'Tools', 'Web']
 
 // ─── Login ─────────────────────────────────────────────────────────────────
 function Login({ onLogin }: { onLogin: () => void }) {
@@ -95,31 +97,36 @@ export default function Admin() {
   const [deletedSkillIds, setDeletedSkillIds] = useState<string[]>([])
   const [certs, setCerts] = useState<Certification[]>(seedCertifications)
   const [deletedCertIds, setDeletedCertIds] = useState<string[]>([])
+  const [education, setEducation] = useState<Education[]>(seedEducation)
+  const [deletedEduIds, setDeletedEduIds] = useState<string[]>([])
+  const [hackathons, setHackathons] = useState<Hackathon[]>(seedHackathons)
+  const [deletedHackIds, setDeletedHackIds] = useState<string[]>([])
   const [uploading, setUploading] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authed || !hasSupabase) return
     const load = async () => {
-      const [p, pr, sk, ce] = await Promise.all([
+      const [p, pr, sk, ce, ed, ha] = await Promise.all([
         supabase.from('profile').select('*').single(),
         supabase.from('projects').select('*').order('order_index'),
         supabase.from('skills').select('*').order('order_index'),
         supabase.from('certifications').select('*').order('order_index'),
+        supabase.from('education').select('*').order('order_index'),
+        supabase.from('hackathons').select('*').order('order_index'),
       ])
       if (p.data) setProfile(p.data)
       if (pr.data?.length) setProjects(pr.data)
       if (sk.data?.length) setSkills(sk.data)
       if (ce.data?.length) setCerts(ce.data)
+      if (ed.data?.length) setEducation(ed.data)
+      if (ha.data?.length) setHackathons(ha.data)
     }
     load()
   }, [authed])
 
-  // FIX: properly delete from Supabase AND local state
   const deleteProject = async (id: string) => {
     setProjects(ps => ps.filter(p => p.id !== id))
-    if (hasSupabase) {
-      setDeletedProjectIds(ids => [...ids, id])
-    }
+    if (hasSupabase) setDeletedProjectIds(ids => [...ids, id])
   }
 
   const deleteSkill = (id: string) => {
@@ -132,6 +139,16 @@ export default function Admin() {
     if (hasSupabase) setDeletedCertIds(ids => [...ids, id])
   }
 
+  const deleteEdu = (id: string) => {
+    setEducation(es => es.filter(e => e.id !== id))
+    if (hasSupabase) setDeletedEduIds(ids => [...ids, id])
+  }
+
+  const deleteHack = (id: string) => {
+    setHackathons(hs => hs.filter(h => h.id !== id))
+    if (hasSupabase) setDeletedHackIds(ids => [...ids, id])
+  }
+
   const saveAll = async () => {
     if (!hasSupabase) { alert('Add Supabase keys to .env to save data'); return }
     setSaving(true)
@@ -141,6 +158,8 @@ export default function Admin() {
         ...deletedProjectIds.map(id => supabase.from('projects').delete().eq('id', id)),
         ...deletedSkillIds.map(id => supabase.from('skills').delete().eq('id', id)),
         ...deletedCertIds.map(id => supabase.from('certifications').delete().eq('id', id)),
+        ...deletedEduIds.map(id => supabase.from('education').delete().eq('id', id)),
+        ...deletedHackIds.map(id => supabase.from('hackathons').delete().eq('id', id)),
       ])
 
       // Upsert remaining items
@@ -149,12 +168,16 @@ export default function Admin() {
         ...projects.map(p => supabase.from('projects').upsert(p)),
         ...skills.map(s => supabase.from('skills').upsert(s)),
         ...certs.map(c => supabase.from('certifications').upsert(c)),
+        ...education.map(e => supabase.from('education').upsert(e)),
+        ...hackathons.map(h => supabase.from('hackathons').upsert(h)),
       ])
 
       // Clear deleted ID queues
       setDeletedProjectIds([])
       setDeletedSkillIds([])
       setDeletedCertIds([])
+      setDeletedEduIds([])
+      setDeletedHackIds([])
 
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
@@ -191,6 +214,9 @@ export default function Admin() {
   }
 
   if (!authed) return <Login onLogin={() => setAuthed(true)} />
+
+  const inputCls = "px-3 py-2.5 rounded-lg font-rajdhani text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-yellow-500 outline-none transition-colors text-gray-900 dark:text-white"
+  const selectCls = `${inputCls} cursor-pointer`
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark">
@@ -336,28 +362,101 @@ export default function Admin() {
           </button>
         </Section>
 
-        {/* Skills */}
+        {/* Skills — with category selector */}
         <Section title="Skills">
-          <div className="grid sm:grid-cols-2 gap-3">
-            {skills.map((sk, i) => (
-              <div key={sk.id} className="flex items-center gap-2 p-3 rounded-lg border border-gray-100 dark:border-white/5">
-                <div className="flex-1 grid grid-cols-3 gap-2">
-                  <input value={sk.name} onChange={e => setSkills(ss => ss.map((s, j) => j === i ? { ...s, name: e.target.value } : s))}
-                    className="px-2 py-1.5 rounded font-rajdhani text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 outline-none col-span-2" />
-                  <input type="number" min={0} max={100} value={sk.level}
-                    onChange={e => setSkills(ss => ss.map((s, j) => j === i ? { ...s, level: +e.target.value } : s))}
-                    className="px-2 py-1.5 rounded font-mono text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 outline-none" />
+          <p className="font-mono text-xs text-gray-400 tracking-wider mb-4">
+            Skills are grouped by category on the portfolio. Use the dropdown to assign each skill to its section.
+          </p>
+
+          {/* Group skills by category for visual clarity */}
+          {SKILL_CATEGORIES.map(cat => {
+            const catSkills = skills.filter(s => s.category === cat)
+            if (catSkills.length === 0) return null
+            return (
+              <div key={cat} className="mb-5">
+                <div className="font-mono text-xs tracking-widest uppercase text-gray-500 dark:text-gray-400 mb-2 pb-1 border-b border-gray-100 dark:border-white/5">
+                  {cat}
                 </div>
-                <button onClick={() => deleteSkill(sk.id)} className="text-red-400 hover:text-red-500 p-1">
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {catSkills.map(sk => {
+                    const i = skills.findIndex(s => s.id === sk.id)
+                    return (
+                      <div key={sk.id} className="flex items-center gap-2 p-3 rounded-lg border border-gray-100 dark:border-white/5">
+                        <div className="flex-1 grid gap-2" style={{ gridTemplateColumns: '1fr 90px 70px' }}>
+                          <input
+                            value={sk.name}
+                            onChange={e => setSkills(ss => ss.map((s, j) => j === i ? { ...s, name: e.target.value } : s))}
+                            placeholder="Skill name"
+                            className={inputCls}
+                          />
+                          <select
+                            value={sk.category}
+                            onChange={e => setSkills(ss => ss.map((s, j) => j === i ? { ...s, category: e.target.value } : s))}
+                            className={selectCls}
+                          >
+                            {SKILL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                          <input
+                            type="number" min={0} max={100} value={sk.level}
+                            onChange={e => setSkills(ss => ss.map((s, j) => j === i ? { ...s, level: +e.target.value } : s))}
+                            placeholder="Level"
+                            className={inputCls}
+                          />
+                        </div>
+                        <button onClick={() => deleteSkill(sk.id)} className="text-red-400 hover:text-red-500 p-1 flex-shrink-0">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+
+          {/* Skills with unknown category */}
+          {skills.filter(s => !SKILL_CATEGORIES.includes(s.category)).map(sk => {
+            const i = skills.findIndex(s => s.id === sk.id)
+            return (
+              <div key={sk.id} className="flex items-center gap-2 p-3 rounded-lg border border-red-200 dark:border-red-900/30 mb-2">
+                <div className="flex-1 grid gap-2" style={{ gridTemplateColumns: '1fr 90px 70px' }}>
+                  <input
+                    value={sk.name}
+                    onChange={e => setSkills(ss => ss.map((s, j) => j === i ? { ...s, name: e.target.value } : s))}
+                    className={inputCls}
+                  />
+                  <select
+                    value={sk.category}
+                    onChange={e => setSkills(ss => ss.map((s, j) => j === i ? { ...s, category: e.target.value } : s))}
+                    className={selectCls}
+                  >
+                    <option value={sk.category}>{sk.category}</option>
+                    {SKILL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <input
+                    type="number" min={0} max={100} value={sk.level}
+                    onChange={e => setSkills(ss => ss.map((s, j) => j === i ? { ...s, level: +e.target.value } : s))}
+                    className={inputCls}
+                  />
+                </div>
+                <button onClick={() => deleteSkill(sk.id)} className="text-red-400 hover:text-red-500 p-1 flex-shrink-0">
                   <Trash2 size={14} />
                 </button>
               </div>
+            )
+          })}
+
+          {/* Add Skill — with category selector */}
+          <div className="mt-4 flex items-center gap-2 flex-wrap">
+            <span className="font-mono text-xs text-gray-400 tracking-widest uppercase">Add to:</span>
+            {SKILL_CATEGORIES.map(cat => (
+              <button key={cat}
+                onClick={() => setSkills(ss => [...ss, { id: Date.now().toString(), name: 'New Skill', category: cat, level: 70, order_index: ss.length + 1 }])}
+                className="px-3 py-1.5 font-mono text-xs rounded border border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400 transition-all flex items-center gap-1">
+                <Plus size={11} /> {cat}
+              </button>
             ))}
           </div>
-          <button onClick={() => setSkills(ss => [...ss, { id: Date.now().toString(), name: 'New Skill', category: 'Tools', level: 70, order_index: ss.length + 1 }])}
-            className="mt-3 btn-gold flex items-center gap-2 text-xs py-2">
-            <Plus size={13} /> Add Skill
-          </button>
         </Section>
 
         {/* Certifications */}
@@ -382,6 +481,77 @@ export default function Admin() {
           <button onClick={() => setCerts(cs => [...cs, { id: Date.now().toString(), title: '', issuer: '', date: '', credential_url: '', order_index: cs.length + 1 }])}
             className="mt-3 btn-gold flex items-center gap-2 text-xs py-2">
             <Plus size={13} /> Add Certification
+          </button>
+        </Section>
+
+        {/* Education */}
+        <Section title="Education">
+          <div className="space-y-4">
+            {education.map((edu, i) => (
+              <div key={edu.id} className="p-4 rounded-lg border border-gray-100 dark:border-white/5 relative">
+                <button onClick={() => deleteEdu(edu.id)}
+                  className="absolute top-3 right-3 text-red-400 hover:text-red-500 transition-colors p-1">
+                  <Trash2 size={15} />
+                </button>
+                <div className="grid sm:grid-cols-2 gap-3 pr-8">
+                  <div className="sm:col-span-2">
+                    <Field label="Degree / Qualification" value={edu.degree}
+                      onChange={v => setEducation(es => es.map((e, j) => j === i ? { ...e, degree: v } : e))} />
+                  </div>
+                  <Field label="Institution" value={edu.institution}
+                    onChange={v => setEducation(es => es.map((e, j) => j === i ? { ...e, institution: v } : e))} />
+                  <Field label="Period (e.g. 2023 – 2026)" value={edu.period}
+                    onChange={v => setEducation(es => es.map((e, j) => j === i ? { ...e, period: v } : e))} />
+                  <div className="sm:col-span-2">
+                    <Field label="Score / Grade (e.g. CGPA: 8.78 / 10)" value={edu.score}
+                      onChange={v => setEducation(es => es.map((e, j) => j === i ? { ...e, score: v } : e))} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => setEducation(es => [...es, {
+            id: Date.now().toString(), degree: '', institution: '', period: '', score: '', order_index: es.length + 1
+          }])} className="mt-4 btn-gold flex items-center gap-2 text-xs py-2">
+            <Plus size={13} /> Add Education
+          </button>
+        </Section>
+
+        {/* Hackathons */}
+        <Section title="Hackathons & Achievements">
+          <div className="space-y-4">
+            {hackathons.map((h, i) => (
+              <div key={h.id} className="p-4 rounded-lg border border-gray-100 dark:border-white/5 relative">
+                <button onClick={() => deleteHack(h.id)}
+                  className="absolute top-3 right-3 text-red-400 hover:text-red-500 transition-colors p-1">
+                  <Trash2 size={15} />
+                </button>
+                <div className="grid sm:grid-cols-2 gap-3 pr-8">
+                  <div className="sm:col-span-2">
+                    <Field label="Title" value={h.title}
+                      onChange={v => setHackathons(hs => hs.map((x, j) => j === i ? { ...x, title: v } : x))} />
+                  </div>
+                  <Field label="Prize / Award" value={h.prize}
+                    onChange={v => setHackathons(hs => hs.map((x, j) => j === i ? { ...x, prize: v } : x))} />
+                  <Field label="Year" value={h.year}
+                    onChange={v => setHackathons(hs => hs.map((x, j) => j === i ? { ...x, year: v } : x))} />
+                  <div className="sm:col-span-2">
+                    <Field label="Description" value={h.description} rows={2}
+                      onChange={v => setHackathons(hs => hs.map((x, j) => j === i ? { ...x, description: v } : x))} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Field label="Live URL (optional)" value={h.live_url}
+                      onChange={v => setHackathons(hs => hs.map((x, j) => j === i ? { ...x, live_url: v } : x))} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => setHackathons(hs => [...hs, {
+            id: Date.now().toString(), title: '', prize: '', year: new Date().getFullYear().toString(),
+            description: '', live_url: '', order_index: hs.length + 1
+          }])} className="mt-4 btn-gold flex items-center gap-2 text-xs py-2">
+            <Plus size={13} /> Add Hackathon / Achievement
           </button>
         </Section>
 
